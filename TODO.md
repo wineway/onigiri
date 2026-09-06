@@ -1,6 +1,26 @@
 # TODO
 
-## Allow publisher sessions to use different EventLoops
+## Publisher performance
+
+Variable-size single-frame and multipart batches are implemented through
+`PublishBatchWriter`; see [the API contract](MULTIPART.md). Continue profiling
+filtered routing, payload copies and saturated queue behavior with both fixed
+200-byte messages and variable sizes averaging 200 bytes.
+
+The latest recorded broadcast regression run does not meet the 25 GB/s publisher
+input target or loaded processing p99.9 < 1 ms. See [measurements](BATCH_BENCHMARKS.md).
+Add subscription notification drop metrics and benchmarks for connection-directed
+sends and subscription callback capacity.
+
+## Implemented alternative: independent SubClient shards
+
+ShardedSubClient composes independent single-loop clients behind a serialized
+control loop. Subscription operations are broadcast in FIFO order to every child;
+each child owns its registry and READY/reconnect restoration. Callbacks may run
+concurrently across shards. See SUBCLIENT_OPTIMIZATION.md for the design and tests.
+This does not redistribute the original SubClient's shared session state.
+
+## Allow publisher sessions within one SubClient to use different EventLoops
 
 Keep all sessions of one `SubClient` on its single EventLoop for now. Revisit this
 only if profiling shows that the EventLoop is a bottleneck.

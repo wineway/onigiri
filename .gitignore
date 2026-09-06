@@ -29,3 +29,8 @@ replay_pid*
 # OS metadata
 .DS_Store
 Thumbs.db
+
+# Python interoperability environment
+.venv/
+__pycache__/
+*.pyc
