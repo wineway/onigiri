@@ -114,6 +114,7 @@ public final class PubServer implements AutoCloseable {
     public void onSubscription(Session session, Prefix prefix) {
       if (closing.get()) return;
       if (pendingSubscriptions.incrementAndGet() > config.subscriptionCallbackCapacity()) {
+        // TODO: add metrics report
         pendingSubscriptions.decrementAndGet();
         return;
       }

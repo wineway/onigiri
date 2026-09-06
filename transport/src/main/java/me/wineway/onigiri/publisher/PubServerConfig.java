@@ -26,7 +26,7 @@ public record PubServerConfig(
       int heartbeatTimeoutMillis, int heartbeatTtlMillis) {
     this(laneQueueCapacity, laneDrainLimit, maxBatchMessages, maxSubscribersPerLane,
         handshakeTimeoutMillis, heartbeatIntervalMillis, heartbeatTimeoutMillis,
-        heartbeatTtlMillis, 1024, 4096);
+        heartbeatTtlMillis, Integer.MAX_VALUE, 4096);
   }
 
   /** Compatibility constructor using the default subscriber capacity. */
@@ -54,7 +54,7 @@ public record PubServerConfig(
     this(laneQueueCapacity, laneDrainLimit, maxBatchMessages, maxSubscribersPerLane,
         handshakeTimeoutMillis, heartbeatIntervalMillis, heartbeatTimeoutMillis, heartbeatTtlMillis,
         maxSubscriptionsPerSession, maxSubscriptionPrefixBytes, maxPartsPerMessage,
-        maxMessageBytes, maxBatchBytes, 1024);
+        maxMessageBytes, maxBatchBytes, 65536);
   }
 
   public PubServerConfig {
