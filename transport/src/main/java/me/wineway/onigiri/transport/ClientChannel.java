@@ -231,7 +231,8 @@ public class ClientChannel implements AutoCloseable {
       return;
     }
     if (!outboundBuffer.offer(buf)) {
-      throw new IllegalStateException("to many requests");
+      buf.release();
+      throw new IllegalStateException("too many requests");
     }
     requestDrain();
   }

@@ -252,6 +252,39 @@ class ClientChannelTest {
   }
 
   @Test
+  void fullOutboundQueueReleasesRejectedBuffer() throws Exception {
+    CountingGroup group = new CountingGroup();
+    ClientChannel client = new ClientChannel(group,
+        new ClientChannelConfig(100, 30_000, 2, 64, 5000));
+    List<ByteBuf> buffers = new ArrayList<>();
+    for (int i = 0; i < 3; i++) {
+      buffers.add(Unpooled.buffer(200).writeZero(200));
+    }
+    try (ServerSocket server = new ServerSocket(0)) {
+      client.connect(server.getLocalSocketAddress()).get(5, TimeUnit.SECONDS);
+      group.selected.submit(() -> {
+        // Fill the queue on its consumer loop so draining cannot race rejection.
+        client.send(buffers.get(0));
+        client.send(buffers.get(1));
+        IllegalStateException failure = assertThrows(IllegalStateException.class,
+            () -> client.send(buffers.get(2)));
+        assertEquals("too many requests", failure.getMessage());
+        assertEquals(0, buffers.get(2).refCnt());
+      }).get(5, TimeUnit.SECONDS);
+      client.closeAsync().get(5, TimeUnit.SECONDS);
+      assertTrue(buffers.stream().allMatch(buffer -> buffer.refCnt() == 0));
+    } finally {
+      client.closeAsync().get(5, TimeUnit.SECONDS);
+      group.shutdownGracefully(0, 5, TimeUnit.SECONDS).sync();
+      for (ByteBuf buffer : buffers) {
+        if (buffer.refCnt() > 0) {
+          buffer.release();
+        }
+      }
+    }
+  }
+
+  @Test
   void externalGroupShutdownReleasesDisconnectedQueue() throws Exception {
     CountingGroup group = new CountingGroup();
     ClientChannel client = new ClientChannel(group);
