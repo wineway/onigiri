@@ -3,7 +3,7 @@
 Onigiri is a Java 17+ publish/subscribe library built on Netty. It implements the
 ZMTP 3.1 NULL/PUB/SUB subset over TCP and can communicate with native ZeroMQ peers.
 
-The project is under active development (`0.1.0`). APIs may change, and the
+The project is under active development (`0.1.1`). APIs may change, and the
 performance targets below are engineering goals, not guaranteed capacity.
 
 ## Features
@@ -40,7 +40,7 @@ repository. A Java application can then depend on:
 <dependency>
   <groupId>me.wineway</groupId>
   <artifactId>onigiri-all</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
 </dependency>
 ```
 
